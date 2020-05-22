@@ -24,7 +24,7 @@ namespace BYUPTZControl
         public string ZoomOut { get; set; }
         public string ZoomStop { get; set; }
         public string Stream { get; set; }
-        public IList<Preset> Presets { get; set; }
+        public List<Preset> Presets { get; set; }
     }
 
     public class CameraList
@@ -39,7 +39,7 @@ namespace BYUPTZControl
             if (designTime)
             {                
                 Cameras = new List<Camera>();
-                Cameras.Add(new Camera() { DisplayName = "Front Camera" });
+                Cameras.Add(new Camera() { DisplayName = "Front Camera", Presets = new List<Preset>(new Preset[] { new Preset() { DisplayName = "Left" }, new Preset() { DisplayName = "Right" }, new Preset() { DisplayName = "Front" } }) });
                 Cameras.Add(new Camera() { DisplayName = "Back Camera" });
             }
         }

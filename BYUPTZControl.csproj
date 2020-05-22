@@ -113,13 +113,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="Images\arrow_drop_down-black-18dp.zip" />
-    <None Include="Images\arrow_drop_up-black-18dp.zip" />
-    <None Include="Images\arrow_left-black-18dp.zip" />
-    <None Include="Images\arrow_right-black-18dp.zip" />
-    <None Include="Images\zoom_in-black-18dp.zip" />
-    <None Include="Images\zoom_out-black-18dp.zip" />
+    </EmbeddedResource>    
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

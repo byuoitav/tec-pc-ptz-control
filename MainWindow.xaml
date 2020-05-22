@@ -17,7 +17,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="1" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox">
+        <ListBox Grid.Row="1" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -73,22 +73,22 @@
                     <Border Background="#dddddd" Grid.Row="1" Grid.Column="1"></Border>
                     <Border Margin="0,0,0,-5" CornerRadius="10,10,0,0" Background="#dddddd" Grid.Row="0" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,5,5,0">
                         <Button Name="upButton" PreviewMouseDown="upButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Up" />
+                            <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_drop_up_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border CornerRadius="10,0,0,10" Background="#dddddd" Grid.Row="1" Grid.Column="0" BorderBrush="#cccccc" BorderThickness="5,5,0,5">
                         <Button Name="leftButton" PreviewMouseDown="leftButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Left" />
+                            <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_left_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border CornerRadius="0,10,10,0" Background="#dddddd" Grid.Row="1" Grid.Column="2" BorderBrush="#cccccc" BorderThickness="0,5,5,5">
                         <Button Name="rightButton" PreviewMouseDown="rightButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Right" />
+                            <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_right_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border Margin="0,-5,0,0" CornerRadius="0,0,10,10" Background="#dddddd" Grid.Row="2" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,0,5,5">
                         <Button  Name="downButton" PreviewMouseDown="downButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Down" />
+                            <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_drop_down_black_18dp.png" />
                         </Button>
                     </Border>                    
                 </Grid>
@@ -100,12 +100,18 @@
                     </Grid.RowDefinitions>
                     <Border CornerRadius="10,10,0,0" Background="#dddddd" Grid.Row="0" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,5,5,1">
                         <Button Name="zoomInButton"  PreviewMouseDown="zoomInButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="In" />
+                            <StackPanel HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_zoom_in_black_18dp.png" Width="25" />
+                                <TextBlock Text="In" TextAlignment="Center" />
+                            </StackPanel>
                         </Button>
                     </Border>
                     <Border CornerRadius="0,0,10,10" Background="#dddddd" Grid.Row="2" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,0,5,5">
                         <Button Name="zoomOutButton" PreviewMouseDown="zoomOutButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Out" />
+                            <StackPanel HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_zoom_out_black_18dp.png" Width="25" />
+                                <TextBlock Text="Out" TextAlignment="Center" />
+                            </StackPanel>                            
                         </Button>
                     </Border>
                 </Grid>
@@ -118,26 +124,36 @@
                 </Grid.RowDefinitions>
                 <Border BorderBrush="Black" BorderThickness="0,0,0,1">
                     <TextBlock Text="Presets" FontSize="18" TextAlignment="Center"></TextBlock>
-                </Border>
-                <WrapPanel Grid.Row="1">
-                    <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
-                        <Button Content="Left Board" Name="preset1Button" Click="preset1Button_Click" BorderThickness="0" Background="Transparent" />
-                    </Border>
-                    <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
-                        <Button Content="Right Board" Name="preset2Button" Click="preset2Button_Click" BorderThickness="0" Background="Transparent" />
-                    </Border>
-                    <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
-                        <Button Name="preset3Button" Click="preset3Button_Click" BorderThickness="0" Background="Transparent">
-                            <TextBlock Text="Something that wraps" TextWrapping="Wrap" TextAlignment="Center" />
-                        </Button>
-                    </Border>
-                    <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
-                        <Button Content="Preset 4" Name="preset4Button" Click="preset4Button_Click" BorderThickness="0" Background="Transparent" />
-                    </Border>
-                </WrapPanel>
+                </Border>                
+                <ListBox Grid.Row="1" Name="PresetListBox" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">                    
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"  />
+                                </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
+                                <Button Content="{Binding DisplayName}" Name="presetButton" Click="preset1Button_Click" BorderThickness="0" Background="Transparent" />
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>                
             </Grid>
 
-            <WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1"/>
+            <WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />
         </Grid>
         
         <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="3" Height="20"/>

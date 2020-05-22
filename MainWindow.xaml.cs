@@ -90,81 +90,82 @@ namespace BYUPTZControl
             
             */
 
+        public void ExecuteRequest(string url)
+        {
+            HttpClient client = new HttpClient();
+            client.GetAsync(url);
+        }
+
         private void preset1Button_Click(object sender, RoutedEventArgs e)
         {
-            //preset 1
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x01, 0xff });            
-        }
+            if (CameraListBox.SelectedIndex < 0) return;
 
-        private void preset2Button_Click(object sender, RoutedEventArgs e)
-        {
-            //preset 2
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x02, 0xff });
-        }
-
-        private void preset3Button_Click(object sender, RoutedEventArgs e)
-        {
-            //preset 3
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x03, 0xff });
-        }
-
-        private void preset4Button_Click(object sender, RoutedEventArgs e)
-        {
-            //preset 4
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x04, 0xff });
+            var selectedPreset = ((Button)sender).DataContext as Preset;
+            ExecuteRequest(selectedPreset.SetPreset);
         }
 
         private void upButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //up
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x01, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.TiltUp);
         }
 
         private void stopMovementButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //stop
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x01, 0x01, 0x03, 0x03, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.PanTiltStop);
         }
 
         private void downButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //down
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x02, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.TiltDown);
         }
 
         private void leftButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //left
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x01, 0x03, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.PanLeft);
         }
         
         private void rightButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //right
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x02, 0x03, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.PanRight);
         }
 
         private void zoomInButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //zoom in
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x21, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.ZoomIn);
         }
 
         private void zoomOutButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //zoom out            
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x31, 0xff });
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.ZoomOut);
         }
 
         private void zoomOutButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //stop zoom
-            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x03, 0x81, 0x01, 0x04, 0x07, 0x00, 0xff });            
-        }
+            if (CameraListBox.SelectedIndex < 0) return;
 
-        private void WindowsFormsHost_ChildChanged(object sender, System.Windows.Forms.Integration.ChildChangedEventArgs e)
-        {
-
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.ZoomStop);
         }
 
         CameraList CameraConfig { get; set; }
@@ -206,6 +207,19 @@ namespace BYUPTZControl
                 string responseBody = task.Result.Content.ReadAsStringAsync().Result;
                 CameraConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<CameraList>(responseBody);
             }
+        }
+
+        private void CameraListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //they picked a camera
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+
+            vlcControl.Stop();
+            vlcControl.Play(SelectedCamera.Stream);
+
+            PresetListBox.ItemsSource = SelectedCamera.Presets;
         }
     }
 }
