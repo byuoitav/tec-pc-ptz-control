@@ -15,6 +15,9 @@ using System.Windows.Navigation;
 using System.IO;
 using System.Reflection;
 using Vlc.DotNet.Forms;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.ComponentModel;
 
 namespace BYUPTZControl
 {
@@ -23,28 +26,28 @@ namespace BYUPTZControl
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
+        VlcControl vlcControl = new VlcControl();
+
         public MainWindow()
         {
             InitializeComponent();
-            
-            var control = new VlcControl();
-            this.WindowsFormsHost.Child = control;
-
+                        
+            this.WindowsFormsHost.Child = vlcControl;
 
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             // Default installation path of VideoLAN.LibVLC.Windows
             var libDirectory = new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
-            
-            control.BeginInit();
-            control.VlcLibDirectory = libDirectory;
-            control.EndInit();
 
-            control.Play(new Uri("rtsp://10.13.34.8/live_st1"));
+            vlcControl.BeginInit();
+            vlcControl.VlcLibDirectory = libDirectory;
+            vlcControl.EndInit();
 
+            //vlcControl.Play("url");
         }
 
+        /* - this is encapsulated in the server now 
         void SendUDPPacket(byte[] packetToSend)
         {
             System.Net.Sockets.UdpClient udpClient = new System.Net.Sockets.UdpClient("10.13.34.8", 52381);
@@ -90,78 +93,119 @@ namespace BYUPTZControl
         private void preset1Button_Click(object sender, RoutedEventArgs e)
         {
             //preset 1
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x01, 0xff });            
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x01, 0xff });            
         }
 
         private void preset2Button_Click(object sender, RoutedEventArgs e)
         {
             //preset 2
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x02, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x02, 0xff });
         }
 
         private void preset3Button_Click(object sender, RoutedEventArgs e)
         {
             //preset 3
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x03, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x03, 0xff });
         }
 
         private void preset4Button_Click(object sender, RoutedEventArgs e)
         {
             //preset 4
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x04, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x3f, 0x02, 0x04, 0xff });
         }
 
         private void upButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //up
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x01, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x01, 0xff });
         }
 
         private void stopMovementButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
             //stop
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x01, 0x01, 0x03, 0x03, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x01, 0x01, 0x03, 0x03, 0xff });
         }
 
         private void downButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //down
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x02, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x09, 0x03, 0x02, 0xff });
         }
 
         private void leftButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //left
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x01, 0x03, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x01, 0x03, 0xff });
         }
         
         private void rightButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //right
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x02, 0x03, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x06, 0x01, 0x09, 0x07, 0x02, 0x03, 0xff });
         }
 
         private void zoomInButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //zoom in
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x21, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x21, 0xff });
         }
 
         private void zoomOutButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //zoom out            
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x31, 0xff });
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x81, 0x01, 0x04, 0x07, 0x31, 0xff });
         }
 
         private void zoomOutButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
             //stop zoom
-            SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x03, 0x81, 0x01, 0x04, 0x07, 0x00, 0xff });            
+            //SendUDPPacket(new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x03, 0x81, 0x01, 0x04, 0x07, 0x00, 0xff });            
         }
 
         private void WindowsFormsHost_ChildChanged(object sender, System.Windows.Forms.Integration.ChildChangedEventArgs e)
         {
 
+        }
+
+        CameraList CameraConfig { get; set; }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadingBox.Visibility = Visibility.Visible;
+
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += Worker_DoWork;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            worker.RunWorkerAsync();
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            LoadingBox.Visibility = Visibility.Collapsed;
+
+            this.DataContext = CameraConfig;
+            CameraListBox.SelectedIndex = 0;
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //load the config
+            var configURL = Properties.Settings.Default.ConfigurationURL.Replace("{hostname}", Environment.MachineName.ToUpper());
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var task = client.GetAsync(configURL);
+                if (!task.Result.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Unable to load configuration for host [" + Environment.MachineName + "]");
+                    System.Windows.Application.Current.Shutdown();
+                    return;
+                }
+
+                string responseBody = task.Result.Content.ReadAsStringAsync().Result;
+                CameraConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<CameraList>(responseBody);
+            }
         }
     }
 }
