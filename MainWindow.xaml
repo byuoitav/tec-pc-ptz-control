@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BYUPTZControl"
+        xmlns:winforms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"        
         AllowsTransparency="False" IsHitTestVisible="True" ResizeMode="CanResizeWithGrip"
         Icon="Images/ptz.ico" Loaded="Window_Loaded"     
-        Title="EB 321 - Camera Control" Width="1024" Height="600"
+        Title="Camera Control - v1.0" Width="1024" Height="600"
         d:DataContext="{d:DesignInstance Type=local:CameraList, IsDesignTimeCreatable=True}"        
+        FontFamily="Roboto"
         >    
     <Grid>
         <Grid.RowDefinitions>
@@ -44,22 +46,21 @@
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="310" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />                
             </Grid.RowDefinitions>
 
-            <Grid Margin="0,10,0,0">
+            <Grid Margin="0,20,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />                    
                 </Grid.ColumnDefinitions>
 
-                <Grid Width="180" Height="180" Margin="25,0,10,0">
+                <Grid Width="180" Height="180" Margin="20,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -93,7 +94,7 @@
                     </Border>                    
                 </Grid>
 
-                <Grid Width="60" Height="120" Grid.Column="1" Margin="10,0,25,0">
+                <Grid Width="60" Height="120" Grid.Column="1" Margin="10,0,20,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -117,24 +118,27 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="1" HorizontalAlignment="Center" Margin="0,20,0,0" MaxWidth="330">
+            <Grid Grid.Row="1" Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Border BorderBrush="Black" BorderThickness="0,0,0,1">
                     <TextBlock Text="Presets" FontSize="18" TextAlignment="Center"></TextBlock>
                 </Border>                
-                <ListBox Grid.Row="1" Name="PresetListBox" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">                    
+                <ListBox Grid.Row="1" Name="PresetListBox" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Margin="0,5,0,0">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"  />
-                                </ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Center"  />
+                        </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="10">
-                                <Button Content="{Binding DisplayName}" Name="presetButton" Click="preset1Button_Click" BorderThickness="0" Background="Transparent" />
+                            <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="5">
+                                <Button Name="presetButton" Click="preset1Button_Click" BorderThickness="0" Background="Transparent">
+                                    <TextBlock Text="{Binding DisplayName}"  TextWrapping="Wrap" TextAlignment="Center" Margin="3" />
+                                </Button>
                             </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -150,18 +154,27 @@
                             </Setter>
                         </Style>
                     </ListBox.ItemContainerStyle>
-                </ListBox>                
+                </ListBox>
+                <CheckBox Grid.Row="2" Name="ShowPreviewCheckBox" IsChecked="True" HorizontalAlignment="Center"
+                          Checked="ShowPreviewCheckBox_Checked" Unchecked="ShowPreviewCheckBox_Unchecked">Show Preview (1-3 second delay)</CheckBox>
             </Grid>
-
+            
             <WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />
         </Grid>
         
         <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="3" Height="20"/>
 
         <Border Grid.RowSpan="3" Grid.ColumnSpan="2" Background="White" Name="LoadingBox" Visibility="Collapsed">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="80">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" Foreground="#002E5D">
                 Loading...
-            </TextBlock>
+                </TextBlock>
+                
+                <WindowsFormsHost HorizontalAlignment="Center">
+                    <winforms:PictureBox x:Name="pictureBoxLoading" />
+                </WindowsFormsHost>
+            </StackPanel>
+            
         </Border>        
     </Grid>    
 </Window>

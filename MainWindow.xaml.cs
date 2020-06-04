@@ -32,17 +32,8 @@ namespace BYUPTZControl
         public MainWindow()
         {
             InitializeComponent();
-                        
-            this.WindowsFormsHost.Child = vlcControl;
 
-            var currentAssembly = Assembly.GetEntryAssembly();
-            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-            // Default installation path of VideoLAN.LibVLC.Windows
-            var libDirectory = new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
-
-            vlcControl.BeginInit();
-            vlcControl.VlcLibDirectory = libDirectory;
-            vlcControl.EndInit();
+            pictureBoxLoading.Image = System.Drawing.Image.FromFile("images/ajax-loader.gif");
 
             //vlcControl.Play("url");
         }
@@ -182,14 +173,33 @@ namespace BYUPTZControl
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            LoadingBox.Visibility = Visibility.Collapsed;
+            if (e.Result?.ToString() == "shutdown")
+            {
+                Application.Current.Shutdown();
+            }
 
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            // Default installation path of VideoLAN.LibVLC.Windows
+            var libDirectory = new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+
+            this.WindowsFormsHost.Child = vlcControl;
+
+            vlcControl.BeginInit();
+            vlcControl.VlcLibDirectory = libDirectory;
+            vlcControl.EndInit();
+
+            LoadingBox.Visibility = Visibility.Collapsed;
+            
             this.DataContext = CameraConfig;
             CameraListBox.SelectedIndex = 0;
+            this.Height = Math.Max(600, 375 + CameraConfig.Cameras.Max(one => one.Presets.Count) / 2 * 80);
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
+            //load vlc
+            
             //load the config
             var configURL = Properties.Settings.Default.ConfigurationURL.Replace("{hostname}", Environment.MachineName.ToUpper());
 
@@ -200,7 +210,7 @@ namespace BYUPTZControl
                 if (!task.Result.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Unable to load configuration for host [" + Environment.MachineName + "]");
-                    System.Windows.Application.Current.Shutdown();
+                    e.Result = "shutdown";                    
                     return;
                 }
 
@@ -220,6 +230,24 @@ namespace BYUPTZControl
             vlcControl.Play(SelectedCamera.Stream);
 
             PresetListBox.ItemsSource = SelectedCamera.Presets;
+        }
+
+        private void ShowPreviewCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+                WindowsFormsHost.Visibility = Visibility.Visible;
+                this.Width = 1024;
+            }
+        }
+
+        private void ShowPreviewCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+                WindowsFormsHost.Visibility = Visibility.Collapsed;
+                this.Width = 315;
+            }
         }
     }
 }
