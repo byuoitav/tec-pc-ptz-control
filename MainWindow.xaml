@@ -7,19 +7,18 @@
         xmlns:winforms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"        
         AllowsTransparency="False" IsHitTestVisible="True" ResizeMode="CanResizeWithGrip"
-        Icon="Images/ptz.ico" Loaded="Window_Loaded"     
-        Title="Camera Control - v1.0" Width="1024" Height="600"
+        Icon="Images/Camera 6.ico" Loaded="Window_Loaded"     
+        Title="Camera Control - v1.1" Width="750" Height="350"
         d:DataContext="{d:DesignInstance Type=local:CameraList, IsDesignTimeCreatable=True}"        
         FontFamily="Roboto"
         >    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />            
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="1" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
+        <ListBox Grid.Row="0" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -44,7 +43,7 @@
             </ListBox.Style>-->
         </ListBox>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="310" />
                 <ColumnDefinition Width="*" />
@@ -118,7 +117,7 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="20">
+            <Grid Grid.Row="0" Grid.Column="1" Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -155,14 +154,14 @@
                         </Style>
                     </ListBox.ItemContainerStyle>
                 </ListBox>
-                <CheckBox Grid.Row="2" Name="ShowPreviewCheckBox" IsChecked="True" HorizontalAlignment="Center"
-                          Checked="ShowPreviewCheckBox_Checked" Unchecked="ShowPreviewCheckBox_Unchecked">Show Preview (1-3 second delay)</CheckBox>
+                <!--<CheckBox Grid.Row="2" Name="ShowPreviewCheckBox" IsChecked="True" HorizontalAlignment="Center"
+                          Checked="ShowPreviewCheckBox_Checked" Unchecked="ShowPreviewCheckBox_Unchecked">Show Preview (1-3 second delay)</CheckBox>-->
             </Grid>
             
-            <WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />
+            <!--<WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />-->
         </Grid>
         
-        <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="3" Height="20"/>
+        <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="2" Height="20"/>
 
         <Border Grid.RowSpan="3" Grid.ColumnSpan="2" Background="White" Name="LoadingBox" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

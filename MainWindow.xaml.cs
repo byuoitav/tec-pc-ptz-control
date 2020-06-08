@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 
 using System.IO;
 using System.Reflection;
-using Vlc.DotNet.Forms;
+//using Vlc.DotNet.Forms;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.ComponentModel;
@@ -27,7 +27,7 @@ namespace BYUPTZControl
     public partial class MainWindow : Window
     {
 
-        VlcControl vlcControl = new VlcControl();
+        //VlcControl vlcControl = new VlcControl();
 
         public MainWindow()
         {
@@ -178,7 +178,7 @@ namespace BYUPTZControl
                 Application.Current.Shutdown();
             }
 
-            var currentAssembly = Assembly.GetEntryAssembly();
+            /*var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             // Default installation path of VideoLAN.LibVLC.Windows
             var libDirectory = new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
@@ -187,13 +187,13 @@ namespace BYUPTZControl
 
             vlcControl.BeginInit();
             vlcControl.VlcLibDirectory = libDirectory;
-            vlcControl.EndInit();
+            vlcControl.EndInit();*/
 
             LoadingBox.Visibility = Visibility.Collapsed;
             
             this.DataContext = CameraConfig;
             CameraListBox.SelectedIndex = 0;
-            this.Height = Math.Max(600, 375 + CameraConfig.Cameras.Max(one => one.Presets.Count) / 2 * 80);
+            this.Height = Math.Max(350, 150 + CameraConfig.Cameras.Max(one => one.Presets.Count) / 3 * 80);
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -226,8 +226,8 @@ namespace BYUPTZControl
 
             var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
 
-            vlcControl.Stop();
-            vlcControl.Play(SelectedCamera.Stream);
+            //vlcControl.Stop();
+            //vlcControl.Play(SelectedCamera.Stream);
 
             PresetListBox.ItemsSource = SelectedCamera.Presets;
         }
@@ -236,8 +236,8 @@ namespace BYUPTZControl
         {
             if (this.IsLoaded)
             {
-                WindowsFormsHost.Visibility = Visibility.Visible;
-                this.Width = 1024;
+                //WindowsFormsHost.Visibility = Visibility.Visible;
+                //this.Width = 1024;
             }
         }
 
@@ -245,8 +245,8 @@ namespace BYUPTZControl
         {
             if (this.IsLoaded)
             {
-                WindowsFormsHost.Visibility = Visibility.Collapsed;
-                this.Width = 315;
+                //WindowsFormsHost.Visibility = Visibility.Collapsed;
+                //this.Width = 315;
             }
         }
     }
