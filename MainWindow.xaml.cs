@@ -18,6 +18,10 @@ using System.Reflection;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.ComponentModel;
+using System.Windows.Threading;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Security;
 
 namespace BYUPTZControl
 {
@@ -28,7 +32,13 @@ namespace BYUPTZControl
     {
 
         //VlcControl vlcControl = new VlcControl();
-
+        DispatcherTimer previewTimer;
+        DateTime SleepTime = DateTime.Now.AddMinutes(5);
+        string PreviewToken = "";
+        WriteableBitmap writeableBitmap;
+        string x = "ThWmZq4t7w!z%C*F-JaNdRfUjXn2r5u8";
+        string y = "+KbPeShVmYq3t6w9y$B&E)H@McQfTjWn";
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -36,7 +46,132 @@ namespace BYUPTZControl
             pictureBoxLoading.Image = System.Drawing.Image.FromFile("images/ajax-loader.gif");
 
             //vlcControl.Play("url");
+
+            InputManager.Current.PreProcessInput += Current_PreProcessInput;
+
+            previewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150), IsEnabled = true };
+            previewTimer.Tick += PreviewTimer_Tick;
         }
+
+        private void PreviewTimer_Tick(object sender, EventArgs e)
+        {           
+            if (SleepTime > DateTime.Now)
+            {
+                if (CameraConfig == null) return;
+                if (CameraListBox.SelectedIndex == -1) return;
+
+                var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+
+                if (SelectedCamera.Stream == "")
+                {
+                    previewTimer.Stop();
+                    return;
+                }
+
+                if (PreviewToken == "")
+                {
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                                                                        
+                        byte[] key1b = System.Text.Encoding.UTF8.GetBytes(x);
+                        byte[] key2b = System.Text.Encoding.UTF8.GetBytes(y);
+                        string payload = Encryption.AESThenHMAC.SimpleDecrypt(Properties.Settings.Default.CamPreviewTokenPayloadEncrpyted, key1b, key2b);
+                        
+                        var task = client.PostAsync(Properties.Settings.Default.CamPreviewTokenURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent(payload, Encoding.UTF8, "application/json"));
+
+                        if (!task.Result.IsSuccessStatusCode)
+                        {
+                            previewTimer.Stop();
+                            PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                            PreviewUnavailableLabel.Text = "Preview Unavailable";
+                            return;
+                        }
+                        else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                        {
+                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        }
+
+                        string responseBody = task.Result.Content.ReadAsStringAsync().Result;
+                        var tokenresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<Aver520LoginResult>(responseBody);
+                        PreviewToken = tokenresponse.data.token;
+
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
+                        task = client.PostAsync(Properties.Settings.Default.CamPreviewSubscribeURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent("", Encoding.UTF8, "application/json"));
+
+                        if (!task.Result.IsSuccessStatusCode)
+                        {
+                            previewTimer.Stop();
+                            PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                            PreviewUnavailableLabel.Text = "Preview Unavailable";
+                            return;
+                        }
+                        else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                        {
+                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        }
+                    }
+                }
+
+                using (var client = new HttpClient())
+                {                    
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
+                    var task = client.GetAsync(Properties.Settings.Default.CamPreviewURL.Replace("{hostname}", SelectedCamera.Stream));
+
+                    if (!task.Result.IsSuccessStatusCode)
+                    {
+                        previewTimer.Stop();
+                        PreviewToken = "";
+                        PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                        PreviewUnavailableLabel.Text = "Preview Unavailable";
+                        return;
+                    }
+                    else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                    {
+                        PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                    }
+
+                    var imageByteArray = task.Result.Content.ReadAsByteArrayAsync().Result;                    
+                    using (var ms = new MemoryStream(imageByteArray))
+                    {
+                        var formsBitmap = new Bitmap(ms);
+                        var width = formsBitmap.Width;
+                        var height = formsBitmap.Height;
+
+                        if (writeableBitmap == null || height != writeableBitmap.PixelHeight || width != writeableBitmap.PixelWidth)
+                        {
+                            writeableBitmap = new WriteableBitmap(width, height, 72, 72, PixelFormats.Pbgra32, null);
+                            PreviewImage.Source = writeableBitmap;
+                        }
+
+
+                        BitmapData data = formsBitmap.LockBits(new Rectangle(0, 0, formsBitmap.Width, formsBitmap.Height),
+                            ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                        try
+                        {
+                            writeableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data.Scan0, data.Stride * data.Height, data.Stride);
+                        }
+                        finally
+                        {
+                            formsBitmap.UnlockBits(data);
+                        }
+
+                        formsBitmap.Dispose();
+                    }
+                }
+            }
+            else if (PreviewUnavailableBorder.Visibility == Visibility.Collapsed)
+            {
+                PreviewUnavailableLabel.Text = "Preview Paused";
+                PreviewUnavailableBorder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
+        {
+            SleepTime = DateTime.Now.AddSeconds(60);
+        }      
 
         /* - this is encapsulated in the server now 
         void SendUDPPacket(byte[] packetToSend)
@@ -176,6 +311,7 @@ namespace BYUPTZControl
             if (e.Result?.ToString() == "shutdown")
             {
                 Application.Current.Shutdown();
+                return;
             }
 
             /*var currentAssembly = Assembly.GetEntryAssembly();
@@ -193,7 +329,7 @@ namespace BYUPTZControl
             
             this.DataContext = CameraConfig;
             CameraListBox.SelectedIndex = 0;
-            this.Height = Math.Max(350, 150 + CameraConfig.Cameras.Max(one => one.Presets.Count) / 3 * 80);
+            //this.Height = Math.Max(730, 380 + CameraConfig.Cameras.Max(one => one.Presets.Count) / 2 * 80); 
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)

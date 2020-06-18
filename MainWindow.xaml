@@ -8,14 +8,14 @@
         mc:Ignorable="d"        
         AllowsTransparency="False" IsHitTestVisible="True" ResizeMode="CanResizeWithGrip"
         Icon="Images/Camera 6.ico" Loaded="Window_Loaded"     
-        Title="Camera Control - v1.1" Width="750" Height="350"
+        Title="Camera Control - v1.2" Width="1380" Height="768"
         d:DataContext="{d:DesignInstance Type=local:CameraList, IsDesignTimeCreatable=True}"        
         FontFamily="Roboto"
         >    
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />            
+            <RowDefinition Height="Auto" />            
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <ListBox Grid.Row="0" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
@@ -72,22 +72,26 @@
                     </Grid.RowDefinitions>
                     <Border Background="#dddddd" Grid.Row="1" Grid.Column="1"></Border>
                     <Border Margin="0,0,0,-5" CornerRadius="10,10,0,0" Background="#dddddd" Grid.Row="0" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,5,5,0">
-                        <Button Name="upButton" PreviewMouseDown="upButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button Name="upButton" PreviewMouseDown="upButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                BorderThickness="0" Background="Transparent">
                             <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_drop_up_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border CornerRadius="10,0,0,10" Background="#dddddd" Grid.Row="1" Grid.Column="0" BorderBrush="#cccccc" BorderThickness="5,5,0,5">
-                        <Button Name="leftButton" PreviewMouseDown="leftButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button Name="leftButton" PreviewMouseDown="leftButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                BorderThickness="0" Background="Transparent">
                             <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_left_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border CornerRadius="0,10,10,0" Background="#dddddd" Grid.Row="1" Grid.Column="2" BorderBrush="#cccccc" BorderThickness="0,5,5,5">
-                        <Button Name="rightButton" PreviewMouseDown="rightButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button Name="rightButton" PreviewMouseDown="rightButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                BorderThickness="0" Background="Transparent">
                             <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_right_black_18dp.png" />
                         </Button>
                     </Border>
                     <Border Margin="0,-5,0,0" CornerRadius="0,0,10,10" Background="#dddddd" Grid.Row="2" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,0,5,5">
-                        <Button  Name="downButton" PreviewMouseDown="downButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button  Name="downButton" PreviewMouseDown="downButton_MouseDown" PreviewMouseUp="stopMovementButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                 BorderThickness="0" Background="Transparent">
                             <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_arrow_drop_down_black_18dp.png" />
                         </Button>
                     </Border>                    
@@ -99,7 +103,8 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Border CornerRadius="10,10,0,0" Background="#dddddd" Grid.Row="0" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,5,5,1">
-                        <Button Name="zoomInButton"  PreviewMouseDown="zoomInButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button Name="zoomInButton"  PreviewMouseDown="zoomInButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                BorderThickness="0" Background="Transparent">
                             <StackPanel HorizontalAlignment="Center">
                                 <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_zoom_in_black_18dp.png" Width="25" />
                                 <TextBlock Text="In" TextAlignment="Center" />
@@ -107,7 +112,8 @@
                         </Button>
                     </Border>
                     <Border CornerRadius="0,0,10,10" Background="#dddddd" Grid.Row="2" Grid.Column="1" BorderBrush="#cccccc" BorderThickness="5,0,5,5">
-                        <Button Name="zoomOutButton" PreviewMouseDown="zoomOutButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" BorderThickness="0" Background="Transparent">
+                        <Button Name="zoomOutButton" PreviewMouseDown="zoomOutButton_MouseDown" PreviewMouseUp="zoomOutButton_MouseUp" Stylus.IsPressAndHoldEnabled="False" 
+                                BorderThickness="0" Background="Transparent">
                             <StackPanel HorizontalAlignment="Center">
                                 <Image Source="pack://application:,,,/BYUPTZControl;component/Images/baseline_zoom_out_black_18dp.png" Width="25" />
                                 <TextBlock Text="Out" TextAlignment="Center" />
@@ -117,7 +123,7 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="0" Grid.Column="1" Margin="20">
+            <Grid Grid.Row="1" Grid.Column="0" Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -135,7 +141,7 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border CornerRadius="10" Background="#dddddd" BorderBrush="#cccccc" BorderThickness="5,5,5,5" Width="100" Height="60" Margin="5">
-                                <Button Name="presetButton" Click="preset1Button_Click" BorderThickness="0" Background="Transparent">
+                                <Button Name="presetButton" Click="preset1Button_Click" Stylus.IsPressAndHoldEnabled="False" BorderThickness="0" Background="Transparent">
                                     <TextBlock Text="{Binding DisplayName}"  TextWrapping="Wrap" TextAlignment="Center" Margin="3" />
                                 </Button>
                             </Border>
@@ -157,7 +163,16 @@
                 <!--<CheckBox Grid.Row="2" Name="ShowPreviewCheckBox" IsChecked="True" HorizontalAlignment="Center"
                           Checked="ShowPreviewCheckBox_Checked" Unchecked="ShowPreviewCheckBox_Unchecked">Show Preview (1-3 second delay)</CheckBox>-->
             </Grid>
-            
+
+            <Border Grid.RowSpan="2" Grid.Column="1" Background="Gray">
+                <Grid>
+                    <Image Name="PreviewImage"  />
+                    <Border Name="PreviewUnavailableBorder" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Visible" Padding="25" Background="#dddddd" Opacity="0.5" CornerRadius="10">
+                        <TextBlock x:Name="PreviewUnavailableLabel">Preview unavailable</TextBlock>
+                    </Border>
+                </Grid>
+            </Border>            
+
             <!--<WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />-->
         </Grid>
         

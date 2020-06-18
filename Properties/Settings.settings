@@ -5,5 +5,17 @@
     <Setting Name="ConfigurationURL" Type="System.String" Scope="Application">
       <Value Profile="(Default)">https://pc-config.av.byu.edu/{hostname}/config</Value>
     </Setting>
+    <Setting Name="CamPreviewTokenPayloadEncrpyted" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">IutzKHz1LFrvUAiMtW65R+oGQ2CWfIsnDz/8YP0w4gZeonV0c9DjPCfuZCq1+1MImT/R5RaA63+HpaIpdrJ12cno0GDxkPxvodGaZasaarIsVXKOTrlOR+BB02ReWkPO</Value>
+    </Setting>
+    <Setting Name="CamPreviewTokenURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://{hostname}/login_name</Value>
+    </Setting>
+    <Setting Name="CamPreviewURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://{hostname}:81/live</Value>
+    </Setting>
+    <Setting Name="CamPreviewSubscribeURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://{hostname}/rmt_acs</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

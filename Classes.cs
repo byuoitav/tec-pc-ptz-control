@@ -24,8 +24,24 @@ namespace BYUPTZControl
         public string ZoomOut { get; set; }
         public string ZoomStop { get; set; }
         public string Stream { get; set; }
+        public string Snapshot { get; set; }
+        public string SnapshotLogin { get; set; }
         public List<Preset> Presets { get; set; }
     }
+
+    public class Aver520LoginResultData
+    {
+        public string token { get; set; }
+    }
+
+    public class Aver520LoginResult
+    {
+        public int code { get; set; }
+        public string msg { get; set; }
+        public Aver520LoginResultData data { get; set; }
+    }
+
+
 
     public class CameraList
     {
@@ -37,7 +53,7 @@ namespace BYUPTZControl
             bool designTime = System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject());
 
             if (designTime)
-            {                
+            {
                 Cameras = new List<Camera>();
                 Cameras.Add(new Camera() { DisplayName = "Front Camera", Presets = new List<Preset>(new Preset[] { new Preset() { DisplayName = "Left" }, new Preset() { DisplayName = "Right" }, new Preset() { DisplayName = "Front" } }) });
                 Cameras.Add(new Camera() { DisplayName = "Back Camera" });

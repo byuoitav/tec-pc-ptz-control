@@ -31,5 +31,42 @@ namespace BYUPTZControl.Properties {
                 return ((string)(this["ConfigurationURL"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("IutzKHz1LFrvUAiMtW65R+oGQ2CWfIsnDz/8YP0w4gZeonV0c9DjPCfuZCq1+1MImT/R5RaA63+HpaIpd" +
+            "rJ12cno0GDxkPxvodGaZasaarIsVXKOTrlOR+BB02ReWkPO")]
+        public string CamPreviewTokenPayloadEncrpyted {
+            get {
+                return ((string)(this["CamPreviewTokenPayloadEncrpyted"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://{hostname}/login_name")]
+        public string CamPreviewTokenURL {
+            get {
+                return ((string)(this["CamPreviewTokenURL"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://{hostname}:81/live")]
+        public string CamPreviewURL {
+            get {
+                return ((string)(this["CamPreviewURL"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://{hostname}/rmt_acs")]
+        public string CamPreviewSubscribeURL {
+            get {
+                return ((string)(this["CamPreviewSubscribeURL"]));
+            }
+        }
     }
 }
