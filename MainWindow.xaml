@@ -8,9 +8,9 @@
         mc:Ignorable="d"        
         AllowsTransparency="False" IsHitTestVisible="True" ResizeMode="CanResizeWithGrip"
         Icon="Images/Camera 6.ico" Loaded="Window_Loaded"     
-        Title="Camera Control - v1.2" Width="1380" Height="768"
+        Title="Camera Control - v1.3" Width="1380" Height="768"
         d:DataContext="{d:DesignInstance Type=local:CameraList, IsDesignTimeCreatable=True}"        
-        FontFamily="Roboto"
+        FontFamily="Roboto" Closing="Window_Closing"
         >    
     <Grid>
         <Grid.RowDefinitions>

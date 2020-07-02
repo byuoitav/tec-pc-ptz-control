@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Security;
+using System.Diagnostics;
 
 namespace BYUPTZControl
 {
@@ -33,8 +34,13 @@ namespace BYUPTZControl
 
         //VlcControl vlcControl = new VlcControl();
         DispatcherTimer previewTimer;
+        DispatcherTimer zoomStopTimer;
+
+        Decoders.MJPEGStream mjpegstream;
+
         DateTime SleepTime = DateTime.Now.AddMinutes(5);
         string PreviewToken = "";
+        int PreviewIndex = -1;
         WriteableBitmap writeableBitmap;
         string x = "ThWmZq4t7w!z%C*F-JaNdRfUjXn2r5u8";
         string y = "+KbPeShVmYq3t6w9y$B&E)H@McQfTjWn";
@@ -51,114 +57,179 @@ namespace BYUPTZControl
 
             previewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150), IsEnabled = true };
             previewTimer.Tick += PreviewTimer_Tick;
+
+            zoomStopTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500), IsEnabled = true };
+            zoomStopTimer.Tick += ZoomStopTimer_Tick;
+        }
+
+        private void ZoomStopTimer_Tick(object sender, EventArgs e)
+        {
+            if (CameraListBox.SelectedIndex < 0) return;
+
+            var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.ZoomStop);
+
+            zoomStopTimer.Stop();
         }
 
         private void PreviewTimer_Tick(object sender, EventArgs e)
         {           
             if (SleepTime > DateTime.Now)
             {
-                if (CameraConfig == null) return;
-                if (CameraListBox.SelectedIndex == -1) return;
-
-                var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
-
-                if (SelectedCamera.Stream == "")
+                try
                 {
-                    previewTimer.Stop();
-                    return;
-                }
+                    if (CameraConfig == null) return;
+                    if (CameraListBox.SelectedIndex == -1) return;
 
-                if (PreviewToken == "")
-                {
-                    using (var client = new HttpClient())
-                    {
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                                                                        
-                        byte[] key1b = System.Text.Encoding.UTF8.GetBytes(x);
-                        byte[] key2b = System.Text.Encoding.UTF8.GetBytes(y);
-                        string payload = Encryption.AESThenHMAC.SimpleDecrypt(Properties.Settings.Default.CamPreviewTokenPayloadEncrpyted, key1b, key2b);
-                        
-                        var task = client.PostAsync(Properties.Settings.Default.CamPreviewTokenURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent(payload, Encoding.UTF8, "application/json"));
+                    var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
 
-                        if (!task.Result.IsSuccessStatusCode)
-                        {
-                            previewTimer.Stop();
-                            PreviewUnavailableBorder.Visibility = Visibility.Visible;
-                            PreviewUnavailableLabel.Text = "Preview Unavailable";
-                            return;
-                        }
-                        else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
-                        {
-                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
-                        }
-
-                        string responseBody = task.Result.Content.ReadAsStringAsync().Result;
-                        var tokenresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<Aver520LoginResult>(responseBody);
-                        PreviewToken = tokenresponse.data.token;
-
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
-                        task = client.PostAsync(Properties.Settings.Default.CamPreviewSubscribeURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent("", Encoding.UTF8, "application/json"));
-
-                        if (!task.Result.IsSuccessStatusCode)
-                        {
-                            previewTimer.Stop();
-                            PreviewUnavailableBorder.Visibility = Visibility.Visible;
-                            PreviewUnavailableLabel.Text = "Preview Unavailable";
-                            return;
-                        }
-                        else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
-                        {
-                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
-
-                using (var client = new HttpClient())
-                {                    
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
-                    var task = client.GetAsync(Properties.Settings.Default.CamPreviewURL.Replace("{hostname}", SelectedCamera.Stream));
-
-                    if (!task.Result.IsSuccessStatusCode)
+                    if (SelectedCamera.Stream == "")
                     {
                         previewTimer.Stop();
-                        PreviewToken = "";
-                        PreviewUnavailableBorder.Visibility = Visibility.Visible;
-                        PreviewUnavailableLabel.Text = "Preview Unavailable";
                         return;
                     }
-                    else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+
+                    if (SelectedCamera.Stream.EndsWith(".mjpg"))
                     {
-                        PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        previewTimer.Stop();
+
+                        //mjpeg
+                        if (mjpegstream != null)
+                        {
+                            mjpegstream.Stop();                            
+                        }
+
+                        mjpegstream = new Decoders.MJPEGStream(SelectedCamera.Stream);
+
+                        mjpegstream.NewFrame += img => {
+                            Dispatcher.BeginInvoke(
+                                System.Windows.Threading.DispatcherPriority.Render,
+                                new Action(() => {
+                                    var bmp = new BitmapImage();
+                                    bmp.BeginInit();
+                                    bmp.StreamSource = new MemoryStream(img);
+                                    bmp.EndInit();
+                                    bmp.Freeze();
+                                    PreviewImage.Source = bmp;
+                                }));
+                        };
+
+                        if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                        {
+                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        }
+
+                        mjpegstream.Start();
+
+                        return;
                     }
 
-                    var imageByteArray = task.Result.Content.ReadAsByteArrayAsync().Result;                    
-                    using (var ms = new MemoryStream(imageByteArray))
+                    if (mjpegstream != null)
                     {
-                        var formsBitmap = new Bitmap(ms);
-                        var width = formsBitmap.Width;
-                        var height = formsBitmap.Height;
-
-                        if (writeableBitmap == null || height != writeableBitmap.PixelHeight || width != writeableBitmap.PixelWidth)
-                        {
-                            writeableBitmap = new WriteableBitmap(width, height, 72, 72, PixelFormats.Pbgra32, null);
-                            PreviewImage.Source = writeableBitmap;
-                        }
-
-
-                        BitmapData data = formsBitmap.LockBits(new Rectangle(0, 0, formsBitmap.Width, formsBitmap.Height),
-                            ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-                        try
-                        {
-                            writeableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data.Scan0, data.Stride * data.Height, data.Stride);
-                        }
-                        finally
-                        {
-                            formsBitmap.UnlockBits(data);
-                        }
-
-                        formsBitmap.Dispose();
+                        mjpegstream.Stop();
                     }
+
+                    if (PreviewToken == "" || PreviewIndex != CameraListBox.SelectedIndex)
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                            byte[] key1b = System.Text.Encoding.UTF8.GetBytes(x);
+                            byte[] key2b = System.Text.Encoding.UTF8.GetBytes(y);
+                            string payload = Encryption.AESThenHMAC.SimpleDecrypt(Properties.Settings.Default.CamPreviewTokenPayloadEncrpyted, key1b, key2b);
+
+                            var task = client.PostAsync(Properties.Settings.Default.CamPreviewTokenURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent(payload, Encoding.UTF8, "application/json"));
+
+                            if (!task.Result.IsSuccessStatusCode)
+                            {
+                                previewTimer.Stop();
+                                PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                                PreviewUnavailableLabel.Text = "Preview Unavailable";
+                                return;
+                            }
+                            else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                            {
+                                PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                            }
+
+                            string responseBody = task.Result.Content.ReadAsStringAsync().Result;
+                            var tokenresponse = Newtonsoft.Json.JsonConvert.DeserializeObject<Aver520LoginResult>(responseBody);
+                            PreviewToken = tokenresponse.data.token;
+
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
+                            task = client.PostAsync(Properties.Settings.Default.CamPreviewSubscribeURL.Replace("{hostname}", SelectedCamera.Stream), new StringContent("", Encoding.UTF8, "application/json"));
+
+                            if (!task.Result.IsSuccessStatusCode)
+                            {
+                                previewTimer.Stop();
+                                PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                                PreviewUnavailableLabel.Text = "Preview Unavailable";
+                                return;
+                            }
+                            else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                            {
+                                PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                            }
+                        }
+
+                        PreviewIndex = CameraListBox.SelectedIndex;
+                    }
+
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PreviewToken);
+                        var task = client.GetAsync(Properties.Settings.Default.CamPreviewURL.Replace("{hostname}", SelectedCamera.Stream));
+
+                        if (!task.Result.IsSuccessStatusCode)
+                        {
+                            previewTimer.Stop();
+                            PreviewToken = "";
+                            PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                            PreviewUnavailableLabel.Text = "Preview Unavailable";
+                            return;
+                        }
+                        else if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                        {
+                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        }
+
+                        var imageByteArray = task.Result.Content.ReadAsByteArrayAsync().Result;
+                        using (var ms = new MemoryStream(imageByteArray))
+                        {
+                            var formsBitmap = new Bitmap(ms);
+                            var width = formsBitmap.Width;
+                            var height = formsBitmap.Height;
+
+                            if (writeableBitmap == null || height != writeableBitmap.PixelHeight || width != writeableBitmap.PixelWidth)
+                            {
+                                writeableBitmap = new WriteableBitmap(width, height, 72, 72, PixelFormats.Pbgra32, null);
+                                PreviewImage.Source = writeableBitmap;
+                            }
+
+
+                            BitmapData data = formsBitmap.LockBits(new Rectangle(0, 0, formsBitmap.Width, formsBitmap.Height),
+                                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                            try
+                            {
+                                writeableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data.Scan0, data.Stride * data.Height, data.Stride);
+                            }
+                            finally
+                            {
+                                formsBitmap.UnlockBits(data);
+                            }
+
+                            formsBitmap.Dispose();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PreviewUnavailableLabel.Text = "Preview Unavailable";
+                    PreviewUnavailableBorder.Visibility = Visibility.Visible;
+                    previewTimer.Stop();
+                    return;
                 }
             }
             else if (PreviewUnavailableBorder.Visibility == Visibility.Collapsed)
@@ -220,6 +291,7 @@ namespace BYUPTZControl
         {
             HttpClient client = new HttpClient();
             client.GetAsync(url);
+            Debug.Print(url);
         }
 
         private void preset1Button_Click(object sender, RoutedEventArgs e)
@@ -243,6 +315,8 @@ namespace BYUPTZControl
             if (CameraListBox.SelectedIndex < 0) return;
 
             var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
+            ExecuteRequest(SelectedCamera.PanTiltStop);
+            System.Threading.Thread.Sleep(250);
             ExecuteRequest(SelectedCamera.PanTiltStop);
         }
 
@@ -289,9 +363,11 @@ namespace BYUPTZControl
         private void zoomOutButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (CameraListBox.SelectedIndex < 0) return;
-
+            zoomStopTimer.Stop();
             var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
             ExecuteRequest(SelectedCamera.ZoomStop);
+            zoomStopTimer.Start();
+
         }
 
         CameraList CameraConfig { get; set; }
@@ -383,6 +459,14 @@ namespace BYUPTZControl
             {
                 //WindowsFormsHost.Visibility = Visibility.Collapsed;
                 //this.Width = 315;
+            }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (mjpegstream != null)
+            {
+                mjpegstream.Stop();
             }
         }
     }
