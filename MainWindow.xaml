@@ -8,7 +8,7 @@
         mc:Ignorable="d"        
         AllowsTransparency="False" IsHitTestVisible="True" ResizeMode="CanResizeWithGrip"
         Icon="Images/Camera 6.ico" Loaded="Window_Loaded"     
-        Title="Camera Control - v1.3" Width="1380" Height="768"
+        Title="Camera Control - v1.4" Width="1380" Height="768"
         d:DataContext="{d:DesignInstance Type=local:CameraList, IsDesignTimeCreatable=True}"        
         FontFamily="Roboto" Closing="Window_Closing"
         >    
@@ -166,10 +166,15 @@
 
             <Border Grid.RowSpan="2" Grid.Column="1" Background="Gray">
                 <Grid>
-                    <Image Name="PreviewImage"  />
-                    <Border Name="PreviewUnavailableBorder" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Visible" Padding="25" Background="#dddddd" Opacity="0.5" CornerRadius="10">
-                        <TextBlock x:Name="PreviewUnavailableLabel">Preview unavailable</TextBlock>
-                    </Border>
+                    <Image Name="PreviewImage"  />                
+                    <Grid Name="PreviewUnavailableBorder">                    
+                        <Border  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Visible" Padding="25" Background="#dddddd" Opacity="0.75">
+                       
+                        </Border>
+                        <Border Background="White" CornerRadius="15" Padding="25" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="PreviewUnavailableLabel">Preview unavailable</TextBlock>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Border>            
 
