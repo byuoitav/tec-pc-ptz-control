@@ -18,7 +18,11 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="0" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="310" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ListBox Grid.Row="0" Grid.ColumnSpan="2" ItemsSource="{Binding Cameras}" SelectedIndex="0" x:Name="CameraListBox" SelectionChanged="CameraListBox_SelectionChanged">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />
@@ -43,14 +47,15 @@
             </ListBox.Style>-->
         </ListBox>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="310" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />                
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Margin="0,20,0,0">
@@ -164,7 +169,7 @@
                           Checked="ShowPreviewCheckBox_Checked" Unchecked="ShowPreviewCheckBox_Unchecked">Show Preview (1-3 second delay)</CheckBox>-->
             </Grid>
 
-            <Border Grid.RowSpan="2" Grid.Column="1" Background="Gray">
+            <Border Grid.RowSpan="3" Grid.Column="1" Background="Gray">
                 <Grid>
                     <Image Name="PreviewImage"  />                
                     <Grid Name="PreviewUnavailableBorder">                    
@@ -179,9 +184,16 @@
             </Border>            
 
             <!--<WindowsFormsHost x:Name="WindowsFormsHost" Grid.RowSpan="3" Grid.ColumnSpan="2" Grid.Column="1" />-->
+
+          
         </Grid>
-        
-        <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="2" Height="20"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="Gray">
+            For Remote Control, go to <Hyperlink NavigateUri="https://cameras.av.byu.edu" Click="Hyperlink_Click">https://cameras.av.byu.edu</Hyperlink><LineBreak />
+            Enter Code <Bold><Run Text="{Binding controlKey}" /></Bold>
+        </TextBlock>
+
+        <Image Source="Images/byu-oit-logo-25px.png" Margin="10" Grid.Row="2" Grid.ColumnSpan="2" Height="20"/>
 
         <Border Grid.RowSpan="3" Grid.ColumnSpan="2" Background="White" Name="LoadingBox" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

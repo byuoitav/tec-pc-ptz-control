@@ -45,6 +45,7 @@ namespace BYUPTZControl
 
     public class CameraList
     {
+        public string controlKey { get; set; }
         public List<Camera> Cameras { get; set; }
 
         public CameraList()
@@ -54,6 +55,7 @@ namespace BYUPTZControl
 
             if (designTime)
             {
+                controlKey = "1234567";
                 Cameras = new List<Camera>();
                 Cameras.Add(new Camera() { DisplayName = "Front Camera", Presets = new List<Preset>(new Preset[] { new Preset() { DisplayName = "Left" }, new Preset() { DisplayName = "Right" }, new Preset() { DisplayName = "Front" } }) });
                 Cameras.Add(new Camera() { DisplayName = "Back Camera" });

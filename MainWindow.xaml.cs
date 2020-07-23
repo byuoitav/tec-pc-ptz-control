@@ -35,6 +35,7 @@ namespace BYUPTZControl
         //VlcControl vlcControl = new VlcControl();
         DispatcherTimer previewTimer;
         DispatcherTimer zoomStopTimer;
+        DispatcherTimer refreshTimer;
         Decoders.MJPEGStream mjpegstream;
         int SecondsToPause = 5;
         DateTime SleepTime;
@@ -58,6 +59,17 @@ namespace BYUPTZControl
 
             zoomStopTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500), IsEnabled = true };
             zoomStopTimer.Tick += ZoomStopTimer_Tick;
+
+            refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(5), IsEnabled = true };
+            refreshTimer.Tick += RefreshTimer_Tick;
+        }
+
+        private void RefreshTimer_Tick(object sender, EventArgs e)
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += Worker_DoWork;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            worker.RunWorkerAsync();
         }
 
         private void ZoomStopTimer_Tick(object sender, EventArgs e)
@@ -207,11 +219,18 @@ namespace BYUPTZControl
                 Application.Current.Shutdown();
                 return;
             }
+
+            if (mjpegstream != null)
+            {
+                mjpegstream.Stop();
+            }
             
             LoadingBox.Visibility = Visibility.Collapsed;
-            
+
+            int selIndex = CameraListBox.SelectedIndex;
+            if (selIndex < 0) selIndex = 0;
             this.DataContext = CameraConfig;
-            CameraListBox.SelectedIndex = 0;            
+            CameraListBox.SelectedIndex = selIndex >= CameraConfig.Cameras.Count ? 0 : selIndex;            
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -319,6 +338,14 @@ namespace BYUPTZControl
             {
                 mjpegstream.Stop();
             }
+        }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            Hyperlink hl = (Hyperlink)sender;
+            string navigateUri = hl.NavigateUri.ToString();
+            Process.Start(new ProcessStartInfo(navigateUri));
+            e.Handled = true;         
         }
     }
 }
