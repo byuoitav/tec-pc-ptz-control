@@ -261,8 +261,19 @@ namespace BYUPTZControl
             //they picked a camera
             if (CameraListBox.SelectedIndex < 0) return;
 
+            //mjpeg preview
+            if (mjpegstream != null)
+            {
+                mjpegstream.Stop();
+            }
+
+            PreviewUnavailableLabel.Text = "Loading Preview...";
+            PreviewImage.Source = null;
+            PreviewUnavailableBorder.Visibility = Visibility.Visible;
+
             var SelectedCamera = CameraConfig.Cameras[CameraListBox.SelectedIndex];
-            
+
+            this.DataContext = CameraConfig;
             PresetListBox.ItemsSource = SelectedCamera.Presets;
 
             PreviewStreamErrorCount = 0;
@@ -298,6 +309,11 @@ namespace BYUPTZControl
                         bmp.EndInit();
                         bmp.Freeze();
                         PreviewImage.Source = bmp;
+
+                        if (PreviewUnavailableBorder.Visibility == Visibility.Visible)
+                        {
+                            PreviewUnavailableBorder.Visibility = Visibility.Collapsed;
+                        }
                     }));
             };
 
